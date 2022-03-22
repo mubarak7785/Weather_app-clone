@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      h1{
+        color: white;
+      }
+      body{
+        background-image: url("https://cdn.wallpapersafari.com/55/2/ekG9bs.jpg");
+      }
+      .temp{
+        font-size: 50px;
+        border: 1px solid black;
+        background-color: black;
+        color: white;
+        font-weight: bold;
+      }
+      p{
+        color: black;
+        font-weight: bold;
+      }
+      .map {
+        width: 600px;
+        height: 400px;
+      }
+      #main_div {
+        width: 70%;
+        display: flex;
+        justify-content: space-between;
+      }
+      h3{
+        color: white;
+      }
+      #seven{
+        display: flex;
+        justify-content: space-evenly;
+        margin-top: 30px;
+        
+      }
+      .sub{
+        border: blue 1px solid;
+        padding: 10px;
+      }
+      input{
+        width: 100px;
+        height: 25px;
+      }
+    </style>
+  </head>
+  <body>
+    <input type="text" id="city" placeholder="City" />
+    <button onclick="getWeather()">Submit</button>
+    <br />
+    <br />
+    <div id="main_div">
+      <div id="data"></div>
+      <div id="iframe_div"></div>
+    </div>
+    <div id="seven"></div>
+  </body>
+</html>
+<script>
+  async function getWeather() {
+    {
+      try {
+        var city = document.querySelector("#city").value;
+        let response = await fetch(
+          `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=5b4a06620b73c08aedbbecb0e9e88c25&units=metric`
+        );
+        let data = await response.json();
+        showWeather(data, city);
+        // console.log(data);
+  
+      } catch (err) {
+        console.log(err);
+      }
+    }
+   
+  }
+
+  function showWeather(weather, city) {
+    var x = document.querySelector("#data");
+    x.innerHTML = "";
+    document.querySelector("#iframe_div").innerHTML=""
+    let name = document.createElement("h1");
+    name.textContent = weather.name;
+    let temp = document.createElement("p");
+    temp.textContent = `${weather.main.temp}°C`;
+    temp.setAttribute("class","temp")
+    let pressure = document.createElement("h3");
+    pressure.textContent = `Pressure : ${weather.main.pressure}`;
+    let humidity = document.createElement("h3");
+    humidity.textContent = `Humidity : ${weather.main.humidity}`;
+    let temp_min = document.createElement("h3");
+    temp_min.textContent = `Min-Teamp : ${weather.main.temp_min}°C`;
+    let temp_max = document.createElement("h3");
+    temp_max.textContent = `Max-Temp : ${weather.main.temp_max}°C`;
+    var data_div = document.createElement("div");
+    data_div.append(name, temp, pressure, humidity, temp_min, temp_max);
+    x.append(data_div);
+
+    var map = document.createElement("iframe");
+    map.src = `https://maps.google.com/maps?q=${city}&t=&z=9&ie=UTF8&iwloc=&output=embed`;
+    map.setAttribute("class", "map");
+    document.querySelector("#iframe_div").append(map);
+    getSevenDayWeather()
+  }
+
+  
+  async function getSevenDayWeather() {
+    {
+      try {
+        let city = document.querySelector("#city").value;
+        let response = await fetch(
+          `https://api.openweathermap.org/data/2.5/forecast?q=${city}&cnt=7&appid=5b4a06620b73c08aedbbecb0e9e88c25&units=metric`
+        );
+        let data = await response.json();
+        let arr=data.list
+         showSevenDayWeather(arr);
+       
+  
+      } catch (err) {
+        console.log(err);
+      }
+    }
+   
+  }
+
+  function showSevenDayWeather(arr) {
+      console.log(arr)
+      document.querySelector("#seven").innerHTML=""
+    arr.map(function(elem,index){
+      days=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"]
+     
+        let p1=document.createElement("p")
+        p1.textContent=`Min-Temp : ${elem.main.temp_min}°C`
+        let p2=document.createElement("p")
+        p2.textContent=`Max-Temp : ${elem.main.temp_max}°C`
+        let p3=document.createElement("p")
+        p3.textContent=days[index]
+        var image=document.createElement("img")
+        var im=elem.weather[0].icon;
+        image.src=`http://openweathermap.org/img/wn/${im}@2x.png`
+        var sub_div=document.createElement("div")
+
+        sub_div.append(image,p3,p1,p2)
+        sub_div.setAttribute("class","sub")
+        document.querySelector("#seven").append(sub_div)
+
+    })
+  }
+
+</script>
